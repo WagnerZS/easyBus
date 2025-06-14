@@ -11,7 +11,7 @@ const containerStyle = {
 
 // Como pegar a posição atual do usuário?
 // Dica: use Geolocation API do navegador
-const center = {
+const defaultCenter = {
   lat: -23.55052,
   lng: -46.633308,
 };
@@ -19,11 +19,32 @@ const center = {
 export const Map = () => {
   const { token } = useAuth();
   const [markers, setMarkers] = useState([]);
+  const [center, setCenter] = useState(defaultCenter);
   
   // Substitua pela sua chave da API do Google Maps
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
+
+  // Tenta obter a localização do usuário ao montar o componente
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCenter({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          // Se der erro, mantém o valor padrão
+          setCenter(defaultCenter);
+        }
+      );
+    } else {
+      setCenter(defaultCenter);
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchMarkers() {

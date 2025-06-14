@@ -31,7 +31,7 @@ export function Login() {
         </div>
 
         <div className="pt-6 pb-4">
-          <Title title="Faça seu cadastro" />
+          <Title title="Bem-vindo de volta" />
         </div>
 
         <form onSubmit={handleSubmit}>

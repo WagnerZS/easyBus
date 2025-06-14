@@ -29,7 +29,7 @@ export function Register() {
                 </div>
 
                 <div className="pt-6 pb-4">
-                    <Title title="Bem-vindo de volta" />
+                    <Title title="Faça seu cadastro" />
                 </div>
 
                 <form onSubmit={handleSubmit}>
