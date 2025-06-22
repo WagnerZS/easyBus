@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://passing-agatha-atitus-0ca94c8f.koyeb.app/auth';
+const API_URL = import.meta.env.VITE_URL_API + '/auth';
 
 export async function signIn(email, password) {
   try {

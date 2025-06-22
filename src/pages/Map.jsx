@@ -1,16 +1,15 @@
 import { useEffect, useContext, useState } from "react";
 import { Navbar } from "../components";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
-import { getPoints, postPoint } from '../services/mapService';
+import { getPoints, postPoint, putPoint, deletePoint } from '../services/mapService';
 import { useAuth } from "../contexts/AuthContext";
+import { PopupPonto } from "../components/PopupPonto";
 
 const containerStyle = {
   width: "100%",
   height: "100%",
 };
 
-// Como pegar a posição atual do usuário?
-// Dica: use Geolocation API do navegador
 const defaultCenter = {
   lat: -23.55052,
   lng: -46.633308,
@@ -20,7 +19,11 @@ export const Map = () => {
   const { token } = useAuth();
   const [markers, setMarkers] = useState([]);
   const [center, setCenter] = useState(defaultCenter);
-  
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [clickedLatLng, setClickedLatLng] = useState(null);
+  const [selectedMarker, setSelectedMarker] = useState(null);
+
   // Substitua pela sua chave da API do Google Maps
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -58,29 +61,72 @@ export const Map = () => {
     fetchMarkers();
   }, [token]);
 
-  // Função para adicionar ponto ao clicar no mapa
-  const handleMapClick = async (event) => {
-    const lat = event.latLng.lat();
-    const lng = event.latLng.lng();
+  const handleMapClick = (event) => {
+    setClickedLatLng({
+      lat: event.latLng.lat(),
+      lng: event.latLng.lng(),
+    });
+    setModalOpen(true);
+  };
+
+  const handleSavePonto = async (descricao) => {
+    if (!clickedLatLng) return;
     const newPoint = {
-      latitude: lat,
-      longitude: lng,
-      descricao: "Descrição do ponto", // Você pode personalizar isso
+      latitude: clickedLatLng.lat,
+      longitude: clickedLatLng.lng,
+      description: descricao,
     };
     try {
       const savedPoint = await postPoint(token, newPoint);
-      
-      // savedPoint vem com os campos id, latitude, longitude e descricao
-      // Precisamos transformar em um objeto com os campos id, title, position
       const savedMarker = {
         id: savedPoint.id,
-        title: savedPoint.descricao || "Novo Ponto",
+        title: savedPoint.description || "Novo Ponto",
         position: {
           lat: savedPoint.latitude,
           lng: savedPoint.longitude,
         },
       };
       setMarkers((prev) => [...prev, savedMarker]);
+      setModalOpen(false);
+      setClickedLatLng(null);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleEditPonto = async (novaDescricao) => {
+    if (!selectedMarker) return;
+    try {
+      const updatedPoint = {
+        latitude: selectedMarker.position.lat,
+        longitude: selectedMarker.position.lng,
+        description: novaDescricao,
+      };
+      await putPoint(token, selectedMarker.id, updatedPoint);
+
+      setMarkers(markers =>
+        markers.map(m =>
+          m.id === selectedMarker.id
+            ? { ...m, title: novaDescricao }
+            : m
+        )
+      );
+      setModalOpen(false);
+      setClickedLatLng(null);
+      setSelectedMarker(null);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleDeletePonto = async () => {
+    if (!selectedMarker) return;
+    try {
+      await deletePoint(token, selectedMarker.id);
+      setMarkers(markers => markers.filter(m => m.id !== selectedMarker.id));
+      setModalOpen(false);
+      setClickedLatLng(null);
+      setSelectedMarker(null);
     } catch (error) {
       alert(error.message);
     }
@@ -102,8 +148,29 @@ export const Map = () => {
                 key={marker.id}
                 position={marker.position}
                 title={marker.title}
+                onClick={() => {
+                  setSelectedMarker(marker);
+                  setModalOpen(true);
+                  setClickedLatLng(marker.position);
+                }}
               />
             ))}
+            {modalOpen && clickedLatLng && (
+              <PopupPonto
+                open={modalOpen}
+                onClose={() => {
+                  setModalOpen(false);
+                  setClickedLatLng(null);
+                  setSelectedMarker(null);
+                }}
+                onSave={selectedMarker ? handleEditPonto : handleSavePonto}
+                onDelete={selectedMarker ? handleDeletePonto : undefined}
+                lat={clickedLatLng.lat}
+                lng={clickedLatLng.lng}
+                descricaoInicial={selectedMarker?.title || ""}
+                modoEdicao={!!selectedMarker}
+              />
+            )}
           </GoogleMap>
         ) : (
           <div>Carregando mapa...</div>
