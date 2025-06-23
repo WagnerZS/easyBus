@@ -133,49 +133,49 @@ export const Map = () => {
   };
 
   return (
-    <>
-      <Navbar />
-      <div style={{ width: "100%", height: "100%" }}>
+    <div className="relative w-full h-full">
+      <div className="absolute top-0 left-0 w-full h-screen">
         {isLoaded ? (
           <GoogleMap
             mapContainerStyle={containerStyle}
             center={center}
             zoom={12}
             onClick={handleMapClick}
-          >
+            >
             {markers.map(marker => (
               <Marker
-                key={marker.id}
-                position={marker.position}
-                title={marker.title}
-                onClick={() => {
-                  setSelectedMarker(marker);
-                  setModalOpen(true);
-                  setClickedLatLng(marker.position);
-                }}
+              key={marker.id}
+              position={marker.position}
+              title={marker.title}
+              onClick={() => {
+                setSelectedMarker(marker);
+                setModalOpen(true);
+                setClickedLatLng(marker.position);
+              }}
               />
             ))}
             {modalOpen && clickedLatLng && (
               <PopupPonto
-                open={modalOpen}
-                onClose={() => {
-                  setModalOpen(false);
-                  setClickedLatLng(null);
-                  setSelectedMarker(null);
-                }}
-                onSave={selectedMarker ? handleEditPonto : handleSavePonto}
+              open={modalOpen}
+              onClose={() => {
+                setModalOpen(false);
+                setClickedLatLng(null);
+                setSelectedMarker(null);
+              }}
+              onSave={selectedMarker ? handleEditPonto : handleSavePonto}
                 onDelete={selectedMarker ? handleDeletePonto : undefined}
                 lat={clickedLatLng.lat}
                 lng={clickedLatLng.lng}
                 descricaoInicial={selectedMarker?.title || ""}
                 modoEdicao={!!selectedMarker}
-              />
-            )}
+                />
+              )}
           </GoogleMap>
         ) : (
           <div>Carregando mapa...</div>
         )}
       </div>
-    </>
+      <div className="absolute bottom-0 left-0 w-full"><Navbar /></div>
+    </div>
   );
 };

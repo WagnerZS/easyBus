@@ -1,33 +1,5 @@
 .logo {
-  border-radius: 95px;
-  display: block;
-  height: 190px;
-  width: 322px;
-  position: relative;
-}
-
-.logo .text-top {
-  -webkit-text-stroke: 1px #000000;
-  color: #FFFFFF;
-  font-family: "Afacad-Bold", Helvetica;
-  font-size: 96px;
-  font-weight: 700;
-  left: 124px;
-  letter-spacing: 0;
-  line-height: normal;
-  top: 83px;
-  white-space: nowrap;
-}
-
-.logo .text-bottom {
-  color: #FF0202;
-  font-family: "ADLam Display", Helvetica;
-  font-size: 105px;
-  font-weight: 400;
-  left: 124px;
-  letter-spacing: 0;
-  line-height: normal;
-  text-shadow: 2px 4px 4px #00000040;
-  top: 83px;
-  white-space: nowrap;
+  display: flex;
+  width: 100%;
+  justify-content: center;
 }
