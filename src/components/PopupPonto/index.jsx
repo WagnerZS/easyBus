@@ -36,7 +36,6 @@ export function PopupPonto({
 
   if (!open) return null;
 
-  // SVG do bookmark Google (preenchido se favorito)
   const bookmarkIcon = (filled) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -105,7 +104,6 @@ export function PopupPonto({
                 <h2 className="text-base font-bold">Novo ponto</h2>
               )}
             </div>
-            {/* Botão de favoritar */}
             {modoEdicao && (
               <button
                 className="ml-2"
@@ -140,7 +138,6 @@ export function PopupPonto({
             />
           )}
           <div className="flex justify-between items-center mt-2">
-            {/* Botão Deletar */}
             {modoEdicao && (
               <button
                 className="px-3 py-1 rounded bg-black text-white text-sm"
@@ -178,7 +175,7 @@ export function PopupPonto({
             </div>
           </div>
         </div>
-        {/* Triângulo branco (seta) */}
+
         <div className="absolute left-1/2 top-full -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white drop-shadow"></div>
       </div>
     </OverlayView>
