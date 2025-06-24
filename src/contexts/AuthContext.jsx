@@ -10,7 +10,7 @@ export function useAuth() {
 
 // Provider do contexto
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => {  
+  const [token, setToken] = useState(() => {
     // Busca token do sessionStorage ao iniciar
     return sessionStorage.getItem("token") || null;
   });

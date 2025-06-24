@@ -50,11 +50,11 @@ export async function postPoint(token, pointData) {
 
 export async function putPoint(token, id, pointData) {
   try {
-    const response = await axios.put(`${BASE_URL}/${id}`, pointData,{
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const response = await axios.put(`${BASE_URL}/${id}`, pointData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
     );
 
     if (response.status === 200) {

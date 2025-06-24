@@ -36,6 +36,12 @@ export const Map = () => {
 
   const favouritePointList = getFavouritePoints(token);
 
+  const handleAddFavourites = async (pointId) => {
+    const data = await postFavouritePoints(token, pointId);
+
+    console.log(data);
+  };
+
   const handleMapClick = (event) => {
     setClickedLatLng({
       lat: event.latLng.lat(),
@@ -215,22 +221,22 @@ export const Map = () => {
             </div>
 
             <div className="flex flex-col gap-1 px-4 sm:px-12 py-8">
-              {markers.length > 0 &&
-                markers.map((point) => (
+              {favouritePointList.length > 0 &&
+                favouritePointList.map((favouritePoint) => (
                   <div
-                    key={point.id}
+                    key={favouritePoint.id}
                     className="cursor-pointer w-full border rounded border-gray-400 flex justify-between items-center px-4 py-2"
                     onClick={() => {
                       setIsFavouriteList(false);
-                      setCenter(point.position);
+                      setCenter(favouritePoint.point.title);
                     }}
                   >
-                    <span className="text-xl">{point.title}</span>
+                    <span className="text-xl">
+                      {favouritePoint.point.title}
+                    </span>
 
                     <div onClick={(event) => event.stopPropagation()}>
-                      <Trash2Icon
-                        onClick={() => postFavouritePoints(token, point.id)}
-                      />
+                      <Trash2Icon onClick={() => a(favouritePoint.id)} />
                     </div>
                   </div>
                 ))}
