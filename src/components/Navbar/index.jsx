@@ -1,19 +1,18 @@
 import "./navbar.css";
 import { useAuth } from "../../contexts/AuthContext";
 import { BookmarkIcon, LogOutIcon, MapPinIcon } from "lucide-react";
-import { Link } from "react-router-dom";
 
-export function Navbar() {
+export function Navbar({ setIsFavouriteList = () => any}) {
     const { logout } = useAuth();
 
     return (
         <div className="bg-[#FF0202] h-20 w-full flex items-center justify-around px-8 text-white">
-            <Link className="cursor-pointer flex flex-col gap-0.5 items-center" to="/map">
+            <a className="cursor-pointer flex flex-col gap-0.5 items-center" href="/map">
                 <MapPinIcon size={26}/>  
                 <span>Mapa</span>
-            </Link>
+            </a>
 
-            <button className="cursor-pointer flex flex-col gap-0.5 items-center">
+            <button className="cursor-pointer flex flex-col gap-0.5 items-center" onClick={setIsFavouriteList}>
                 <BookmarkIcon size={26}/>
                 <span>Favoritos</span>
             </button>
