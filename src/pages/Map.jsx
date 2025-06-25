@@ -23,6 +23,7 @@ const defaultCenter = {
 export const Map = () => {
   const { token } = useAuth();
   const [isFavouriteList, setIsFavouriteList] = React.useState(false);
+  const [favouritePointList, setFavouritePointList] = React.useState([]);
   const [markers, setMarkers] = React.useState([]);
   const [center, setCenter] = React.useState(defaultCenter);
 
@@ -33,14 +34,6 @@ export const Map = () => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
-
-  const favouritePointList = getFavouritePoints(token);
-
-  const handleAddFavourites = async (pointId) => {
-    const data = await postFavouritePoints(token, pointId);
-
-    console.log(data);
-  };
 
   const handleMapClick = (event) => {
     setClickedLatLng({
@@ -113,10 +106,18 @@ export const Map = () => {
     }
   };
 
-  const handleDeleteListFavouritesPoint = async (id) => {
+  const handleAddFavourite = async (pointId) => {
+    if (!token) {
+      alert("Usuário não autenticado");
+      return;
+    }
+
     try {
-      await deletePoint(token, id);
-      setMarkers((markers) => markers.filter((m) => m.id !== id));
+      const result = await postFavouritePoints(token, pointId);
+      alert("Ponto favoritado com sucesso!");
+      const updatedFavourites = await getFavouritePoints(token);
+      setFavouritePointList(updatedFavourites);
+      console.log(result);
     } catch (error) {
       alert(error.message);
     }
@@ -131,13 +132,25 @@ export const Map = () => {
             lng: position.coords.longitude,
           });
         },
-        (error) => {
+        () => {
           setCenter(defaultCenter);
         }
       );
     } else {
       setCenter(defaultCenter);
     }
+
+    const fetchFavourites = async () => {
+      try {
+        const favouriteList = await getFavouritePoints(token);
+        setFavouritePointList(favouriteList);
+      } catch (error) {
+        console.error("Erro ao buscar favoritos:", error);
+        setFavouritePointList([]); // fallback seguro
+      }
+    };
+
+    fetchFavourites();
   }, []);
 
   React.useEffect(() => {
@@ -221,25 +234,59 @@ export const Map = () => {
             </div>
 
             <div className="flex flex-col gap-1 px-4 sm:px-12 py-8">
-              {favouritePointList.length > 0 &&
-                favouritePointList.map((favouritePoint) => (
+              {Array.isArray(favouritePointList) &&
+                favouritePointList.map((favouritePoint) => {
+                  console.log(favouritePoint);
+                  return (
+                    <div
+                      key={favouritePoint.id}
+                      className="cursor-pointer w-full border rounded border-gray-400 flex justify-between items-center px-4 py-2"
+                      onClick={() => {
+                        setIsFavouriteList(false);
+                        setCenter({
+                          lat: favouritePoint.point.latitude,
+                          lng: favouritePoint.point.longitude,
+                        });
+                      }}
+                    >
+                      <span className="text-xl">
+                        {favouritePoint.point.description}
+                      </span>
+
+                      <div onClick={(event) => event.stopPropagation()}>
+                        <Trash2Icon
+                          onClick={() => {
+                            // excluir ponto favorito
+                            console.log(favouritePoint.id);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+
+              {markers.map((a) => {
+                console.log(a);
+                return (
                   <div
-                    key={favouritePoint.id}
+                    key={a.id}
                     className="cursor-pointer w-full border rounded border-gray-400 flex justify-between items-center px-4 py-2"
                     onClick={() => {
                       setIsFavouriteList(false);
-                      setCenter(favouritePoint.point.title);
                     }}
                   >
-                    <span className="text-xl">
-                      {favouritePoint.point.title}
-                    </span>
+                    <span className="text-xl">{a.title}</span>
 
                     <div onClick={(event) => event.stopPropagation()}>
-                      <Trash2Icon onClick={() => a(favouritePoint.id)} />
+                      <Trash2Icon
+                        onClick={() => {
+                          handleAddFavourite(a.id);
+                        }}
+                      />
                     </div>
                   </div>
-                ))}
+                );
+              })}
             </div>
           </div>
         </>

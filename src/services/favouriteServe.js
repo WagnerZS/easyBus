@@ -10,27 +10,28 @@ export async function getFavouritePoints(token) {
             },
         });
 
-        console.log(response.data)
+        return response.data;
     } catch (error) {
         throw new Error(error.response?.data?.message || 'Erro ao buscar pontos favoritos');
     }
 }
 
-// TODO: ajustar post
-// export async function postFavouritePoints(token, pointId) {
-//     try {
-//         const response = await axios.post(`${BASE_URL}/${pointId}`, {
-//             headers: {
-//                 Authorization: `Bearer ${token}`,
-//             },
-//         });
+export async function postFavouritePoints(token, pointId) {
+    try {
+        const response = await axios.post(
+            `${BASE_URL}/${pointId}`,
+            null,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
 
-//         if (response.status === 201) {
-//             return response.data;
-//         } else {
-//             throw new Error('Erro ao cadastrar ponto');
-//         }
-//     } catch (error) {
-//         throw new Error(error.response?.data?.message || 'Erro ao enviar ponto favorito');
-//     }
+        if (response.status === 201) return response.data;
+
+        throw new Error('Erro ao cadastrar ponto');
+    } catch (error) {
+        throw new Error(error.response?.data || 'Erro ao enviar ponto favorito');
+    }
 }
