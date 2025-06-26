@@ -189,7 +189,7 @@ export const Map = () => {
               height: "100%",
             }}
             center={center}
-            zoom={center == defaultCenter ? 12 : 18}
+            zoom={center == defaultCenter ? 12 : 16}
             onClick={handleMapClick}
           >
             {markers.map((marker) => (
@@ -253,34 +253,31 @@ export const Map = () => {
 
             <div className="flex flex-col gap-1 px-4 sm:px-12 py-8">
               {Array.isArray(favouritePointList) &&
-                favouritePointList.map((favouritePoint) => {
-                  console.log(favouritePoint);
-                  return (
-                    <div
-                      key={favouritePoint.id}
-                      className="cursor-pointer w-full border rounded border-gray-400 flex justify-between items-center px-4 py-2"
-                      onClick={() => {
-                        setIsFavouriteList(false);
-                        setCenter({
-                          lat: favouritePoint.point.latitude,
-                          lng: favouritePoint.point.longitude,
-                        });
-                      }}
-                    >
-                      <span className="text-xl">
-                        {favouritePoint.point.description}
-                      </span>
+                favouritePointList.map((favouritePoint) => (
+                  <div
+                    key={favouritePoint.id}
+                    className="cursor-pointer w-full border rounded border-gray-400 flex justify-between items-center px-4 py-2"
+                    onClick={() => {
+                      setIsFavouriteList(false);
+                      setCenter({
+                        lat: favouritePoint.point.latitude,
+                        lng: favouritePoint.point.longitude,
+                      });
+                    }}
+                  >
+                    <span className="text-xl">
+                      {favouritePoint.point.description}
+                    </span>
 
-                      <div onClick={(event) => event.stopPropagation()}>
-                        <Trash2Icon
-                          onClick={() => {
-                            handleRemoveFavourite(favouritePoint.point.id);
-                          }}
-                        />
-                      </div>
+                    <div onClick={(event) => event.stopPropagation()}>
+                      <Trash2Icon
+                        onClick={() => {
+                          handleRemoveFavourite(favouritePoint.point.id);
+                        }}
+                      />
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
             </div>
           </div>
         </>
