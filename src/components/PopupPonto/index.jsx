@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { OverlayView } from "@react-google-maps/api";
 
-import "./popup.css"
+import { OverlayView } from "@react-google-maps/api";
+import "./popup.css";
+import { postFavouritePoints } from "../../services/favouriteServe";
+import { useAuth } from "../../contexts/AuthContext";
 
 export function PopupPonto({
   open,
@@ -13,12 +15,31 @@ export function PopupPonto({
   descricaoInicial = "",
   modoEdicao = false,
   favoritoInicial = false,
-  onToggleFavorito, // nova prop para atualizar favorito
+  pointSelectedId,
+  favouritePointList,
 }) {
   const [descricao, setDescricao] = useState(descricaoInicial);
   const [editando, setEditando] = useState(!modoEdicao);
   const [favorito, setFavorito] = useState(favoritoInicial);
   const inputRef = useRef(null);
+
+  const { token } = useAuth();
+
+  const handleAddFavourite = async (pointId) => {
+    if (!token) {
+      alert("Usuário não autenticado");
+      return;
+    }
+
+    try {
+      await postFavouritePoints(token, pointId);
+      alert("Ponto favoritado com sucesso!");
+
+      window.location.reload();
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   useEffect(() => {
     setDescricao(descricaoInicial);
@@ -70,7 +91,7 @@ export function PopupPonto({
       <div
         className="relative flex flex-col items-stretch transform -translate-x-1/2 -translate-y-full"
         style={{ left: "50%", top: 0, position: "absolute" }}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-white rounded-lg shadow-lg border border-gray-300 p-4 w-80 max-w-xs">
           <div className="flex justify-between items-center mb-2">
@@ -82,9 +103,9 @@ export function PopupPonto({
                     className="w-full border border-gray-300 rounded px-2 py-1 mb-0 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     type="text"
                     value={descricao}
-                    onChange={e => setDescricao(e.target.value)}
+                    onChange={(e) => setDescricao(e.target.value)}
                     onBlur={() => setEditando(false)}
-                    onKeyDown={e => {
+                    onKeyDown={(e) => {
                       if (e.key === "Enter" && descricao.trim()) {
                         onSave(descricao, favorito);
                         setEditando(false);
@@ -104,23 +125,27 @@ export function PopupPonto({
                 <h2 className="text-base font-bold">Novo ponto</h2>
               )}
             </div>
-            {modoEdicao && (
-              <button
-                className="ml-2"
-                style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
-                title={favorito ? "Desfavoritar" : "Favoritar"}
-                onClick={() => {
-                  setFavorito((fav) => {
-                    const novoFav = !fav;
-                    if (onToggleFavorito) onToggleFavorito(novoFav);
-                    return novoFav;
-                  });
-                }}
-                tabIndex={0}
-              >
-                {bookmarkIcon(favorito)}
-              </button>
-            )}
+            {modoEdicao &&
+              !favouritePointList.find(
+                (it) => it.point.id == pointSelectedId
+              ) && (
+                <button
+                  className="ml-2"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    cursor: "pointer",
+                  }}
+                  title={favorito ? "Desfavoritar" : "Favoritar"}
+                  onClick={() => {
+                    handleAddFavourite(pointSelectedId);
+                  }}
+                  tabIndex={0}
+                >
+                  {bookmarkIcon(favorito)}
+                </button>
+              )}
           </div>
           {!modoEdicao && (
             <input
@@ -129,8 +154,8 @@ export function PopupPonto({
               type="text"
               placeholder="Descrição"
               value={descricao}
-              onChange={e => setDescricao(e.target.value)}
-              onKeyDown={e => {
+              onChange={(e) => setDescricao(e.target.value)}
+              onKeyDown={(e) => {
                 if (e.key === "Enter" && descricao.trim()) {
                   onSave(descricao, favorito);
                 }
@@ -143,7 +168,9 @@ export function PopupPonto({
                 className="px-3 py-1 rounded bg-black text-white text-sm"
                 style={{ marginRight: "auto" }}
                 onClick={() => {
-                  if (window.confirm("Tem certeza que deseja deletar este ponto?")) {
+                  if (
+                    window.confirm("Tem certeza que deseja deletar este ponto?")
+                  ) {
                     onDelete && onDelete();
                   }
                 }}

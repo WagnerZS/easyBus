@@ -35,3 +35,20 @@ export async function postFavouritePoints(token, pointId) {
         throw new Error(error.response?.data || 'Erro ao enviar ponto favorito');
     }
 }
+
+export async function deleteFavouritePoints(token, pointId) {
+    try {
+        const response = await axios.delete(`${BASE_URL}/${pointId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) return response.data;
+
+        throw new Error('Erro ao remover ponto favorito');
+    } catch (error) {
+        throw new Error(error.response?.data || 'Erro ao excluir ponto favorito');
+    }
+}
+

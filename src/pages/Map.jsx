@@ -8,8 +8,8 @@ import {
   deletePoint,
 } from "../services/mapService";
 import {
+  deleteFavouritePoints,
   getFavouritePoints,
-  postFavouritePoints,
 } from "../services/favouriteServe";
 import { useAuth } from "../contexts/AuthContext";
 import { PopupPonto } from "../components/PopupPonto";
@@ -30,6 +30,7 @@ export const Map = () => {
   const [modalOpen, setModalOpen] = React.useState(false);
   const [clickedLatLng, setClickedLatLng] = React.useState(null);
   const [selectedMarker, setSelectedMarker] = React.useState(null);
+  const [pointSelectedId, setPointSelectedId] = React.useState(null);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -106,18 +107,17 @@ export const Map = () => {
     }
   };
 
-  const handleAddFavourite = async (pointId) => {
+  const handleRemoveFavourite = async (pointId) => {
     if (!token) {
       alert("Usuário não autenticado");
       return;
     }
 
     try {
-      const result = await postFavouritePoints(token, pointId);
-      alert("Ponto favoritado com sucesso!");
+      await deleteFavouritePoints(token, pointId);
+      alert("Ponto favorito removido com sucesso!");
       const updatedFavourites = await getFavouritePoints(token);
       setFavouritePointList(updatedFavourites);
-      console.log(result);
     } catch (error) {
       alert(error.message);
     }
@@ -165,6 +165,20 @@ export const Map = () => {
     fetchMarkers();
   }, [token]);
 
+  React.useEffect(() => {
+    const fetchFavourites = async () => {
+      try {
+        const favouriteList = await getFavouritePoints(token);
+        setFavouritePointList(favouriteList);
+      } catch (error) {
+        console.error("Erro ao buscar favoritos:", error);
+        setFavouritePointList([]);
+      }
+    };
+
+    fetchFavourites();
+  }, [isFavouriteList]);
+
   return (
     <div className="relative w-full h-full">
       <div className="absolute top-0 left-0 w-full h-screen">
@@ -185,6 +199,7 @@ export const Map = () => {
                 title={marker.title}
                 onClick={() => {
                   setSelectedMarker(marker);
+                  setPointSelectedId(marker.id);
                   setModalOpen(true);
                   setClickedLatLng(marker.position);
                 }}
@@ -197,7 +212,10 @@ export const Map = () => {
                   setModalOpen(false);
                   setClickedLatLng(null);
                   setSelectedMarker(null);
+                  setPointSelectedId(null);
                 }}
+                pointSelectedId={pointSelectedId}
+                favouritePointList={favouritePointList}
                 onSave={selectedMarker ? handleEditPonto : handleSavePonto}
                 onDelete={selectedMarker ? handleDeletePonto : undefined}
                 lat={clickedLatLng.lat}
@@ -256,37 +274,13 @@ export const Map = () => {
                       <div onClick={(event) => event.stopPropagation()}>
                         <Trash2Icon
                           onClick={() => {
-                            // excluir ponto favorito
-                            console.log(favouritePoint.id);
+                            handleRemoveFavourite(favouritePoint.point.id);
                           }}
                         />
                       </div>
                     </div>
                   );
                 })}
-
-              {markers.map((a) => {
-                console.log(a);
-                return (
-                  <div
-                    key={a.id}
-                    className="cursor-pointer w-full border rounded border-gray-400 flex justify-between items-center px-4 py-2"
-                    onClick={() => {
-                      setIsFavouriteList(false);
-                    }}
-                  >
-                    <span className="text-xl">{a.title}</span>
-
-                    <div onClick={(event) => event.stopPropagation()}>
-                      <Trash2Icon
-                        onClick={() => {
-                          handleAddFavourite(a.id);
-                        }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
             </div>
           </div>
         </>
