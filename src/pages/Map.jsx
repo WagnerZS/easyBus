@@ -41,6 +41,8 @@ export const Map = () => {
       lat: event.latLng.lat(),
       lng: event.latLng.lng(),
     });
+    setSelectedMarker(null);      // Limpa seleção de ponto
+    setPointSelectedId(null);     // Limpa seleção de id
     setModalOpen(true);
   };
 
@@ -190,8 +192,8 @@ export const Map = () => {
                 onClick={() => {
                   setSelectedMarker(marker);
                   setPointSelectedId(marker.id);
-                  setModalOpen(true);
                   setClickedLatLng(marker.position);
+                  setModalOpen(true);
                 }}
               />
             ))}

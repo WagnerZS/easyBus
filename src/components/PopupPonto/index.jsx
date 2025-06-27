@@ -65,18 +65,24 @@ export function PopupPonto({
   };
 
   useEffect(() => {
-    setDescricao(descricaoInicial);
-    setEditando(!modoEdicao);
-    setFavorito(favoritoInicial);
-  }, [open, lat, lng, descricaoInicial, modoEdicao, favoritoInicial]);
+    if (open) {
+      setDescricao(descricaoInicial || "");
+      setEditando(!modoEdicao);
+      setFavorito(favoritoInicial);
+    }
+  }, [open, descricaoInicial, modoEdicao, favoritoInicial]);
 
   useEffect(() => {
-    if (open && editando) {
+    if (open) {
+      // Pequeno delay para garantir que o input já está no DOM
       setTimeout(() => {
-        inputRef.current && inputRef.current.focus();
-      }, 0);
+        if (inputRef.current) {
+          inputRef.current.focus();
+          inputRef.current.select();
+        }
+      }, 100);
     }
-  }, [open, editando]);
+  }, [open, editando, lat, lng]);
 
   if (!open) return <></>;
 
@@ -88,6 +94,7 @@ export function PopupPonto({
       <div
         className="flex flex-col items-stretch transform -translate-x-1/2 -translate-y-full left-[50%] top-0 absolute"
         onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="bg-white rounded-lg shadow-lg border border-gray-300 p-4 w-80 max-w-xs">
           {modoEdicao ? (
@@ -101,7 +108,6 @@ export function PopupPonto({
                       type="text"
                       value={descricao}
                       onChange={(e) => setDescricao(e.target.value)}
-                      onBlur={() => setEditando(false)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && descricao.trim()) {
                           onSave(descricao, favorito);
