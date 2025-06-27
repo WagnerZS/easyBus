@@ -5,4 +5,9 @@
   padding: 10px 25px;
   text-align: center;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #e66767; /* Tom mais escuro no hover */
 }
