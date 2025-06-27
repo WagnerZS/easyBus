@@ -125,7 +125,7 @@ export const Map = () => {
 
     try {
       await deleteFavouritePoints(token, pointId);
-      alert("Ponto favorito removido com sucesso!");
+
       const updatedFavourites = await getFavouritePoints(token);
       setFavouritePointList(updatedFavourites);
     } catch (error) {
@@ -268,6 +268,7 @@ export const Map = () => {
                       <Trash2Icon
                         onClick={() => {
                           handleRemoveFavourite(favouritePoint.point.id);
+                          handleGetFavourites();
                         }}
                       />
                     </div>
