@@ -246,12 +246,12 @@ export const Map = () => {
               </div>
             </div>
 
-            <div className="flex flex-col gap-1 px-4 sm:px-12 py-8">
+            <div className="flex flex-col gap-4 px-4 sm:px-12 py-8">
               {Array.isArray(favouritePointList) &&
                 favouritePointList.map((favouritePoint) => (
                   <div
                     key={favouritePoint.id}
-                    className="cursor-pointer w-full border rounded border-gray-400 flex justify-between items-center px-4 py-2"
+                    className="group cursor-pointer w-full bg-white border border-gray-200 rounded-xl shadow-md flex justify-between items-center px-6 py-4 transition-all hover:shadow-lg hover:bg-gray-50"
                     onClick={() => {
                       setIsFavouriteList(false);
                       setCenter({
@@ -260,18 +260,20 @@ export const Map = () => {
                       });
                     }}
                   >
-                    <span className="text-xl">
+                    <span className="text-lg font-medium text-gray-900 truncate">
                       {favouritePoint.point.description}
                     </span>
-
-                    <div onClick={(event) => event.stopPropagation()}>
-                      <Trash2Icon
-                        onClick={() => {
-                          handleRemoveFavourite(favouritePoint.point.id);
-                          handleGetFavourites();
-                        }}
-                      />
-                    </div>
+                    <button
+                      className="ml-4 rounded-full p-2 hover:bg-red-100 transition-colors"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleRemoveFavourite(favouritePoint.point.id);
+                        handleGetFavourites();
+                      }}
+                      title="Remover dos favoritos"
+                    >
+                      <Trash2Icon className="text-red-500 group-hover:text-red-700" />
+                    </button>
                   </div>
                 ))}
             </div>
