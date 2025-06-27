@@ -4,6 +4,7 @@ import { OverlayView } from "@react-google-maps/api";
 import "./popup.css";
 import {
   deleteFavouritePoints,
+  getFavouritePoints,
   postFavouritePoints,
 } from "../../services/favouriteServe";
 import { useAuth } from "../../contexts/AuthContext";
@@ -25,13 +26,13 @@ export function PopupPonto({
   const [descricao, setDescricao] = useState(descricaoInicial);
   const [editando, setEditando] = useState(!modoEdicao);
   const [favorito, setFavorito] = useState(favoritoInicial);
+  const [listPointFav, setListPointFav] = useState(favouritePointList);
   const inputRef = useRef(null);
 
   const { token } = useAuth();
 
   const verifyFavourite = () => {
-    if (favouritePointList.find((it) => it.point.id == pointSelectedId))
-      return true;
+    if (listPointFav.find((it) => it.point.id == pointSelectedId)) return true;
 
     return false;
   };
@@ -44,9 +45,8 @@ export function PopupPonto({
 
     try {
       await postFavouritePoints(token, pointId);
-      alert("Ponto favoritado com sucesso!");
-
-      window.location.reload();
+      const favouriteList = await getFavouritePoints(token);
+      setListPointFav(favouriteList);
     } catch (error) {
       alert(error.message);
     }
@@ -57,9 +57,8 @@ export function PopupPonto({
 
     try {
       await deleteFavouritePoints(token, pointId);
-      alert("Ponto favorito removido com sucesso!");
-
-      window.location.reload();
+      const favouriteList = await getFavouritePoints(token);
+      setListPointFav(favouriteList);
     } catch (error) {
       alert(error.message);
     }

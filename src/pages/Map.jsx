@@ -44,6 +44,16 @@ export const Map = () => {
     setModalOpen(true);
   };
 
+  const handleGetFavourites = async () => {
+    try {
+      const favouriteList = await getFavouritePoints(token);
+      setFavouritePointList(favouriteList);
+    } catch (error) {
+      console.error("Erro ao buscar favoritos:", error);
+      setFavouritePointList([]);
+    }
+  };
+
   const handleSavePonto = async (descricao) => {
     if (!clickedLatLng) return;
     const newPoint = {
@@ -140,17 +150,7 @@ export const Map = () => {
       setCenter(defaultCenter);
     }
 
-    const fetchFavourites = async () => {
-      try {
-        const favouriteList = await getFavouritePoints(token);
-        setFavouritePointList(favouriteList);
-      } catch (error) {
-        console.error("Erro ao buscar favoritos:", error);
-        setFavouritePointList([]); // fallback seguro
-      }
-    };
-
-    fetchFavourites();
+    handleGetFavourites();
   }, []);
 
   React.useEffect(() => {
@@ -166,17 +166,7 @@ export const Map = () => {
   }, [token]);
 
   React.useEffect(() => {
-    const fetchFavourites = async () => {
-      try {
-        const favouriteList = await getFavouritePoints(token);
-        setFavouritePointList(favouriteList);
-      } catch (error) {
-        console.error("Erro ao buscar favoritos:", error);
-        setFavouritePointList([]);
-      }
-    };
-
-    fetchFavourites();
+    handleGetFavourites();
   }, [isFavouriteList]);
 
   return (
@@ -213,6 +203,7 @@ export const Map = () => {
                   setClickedLatLng(null);
                   setSelectedMarker(null);
                   setPointSelectedId(null);
+                  handleGetFavourites();
                 }}
                 pointSelectedId={pointSelectedId}
                 favouritePointList={favouritePointList}
@@ -232,6 +223,10 @@ export const Map = () => {
       <div className="absolute bottom-0 left-0 w-full z-[10]">
         <Navbar
           setIsFavouriteList={() => setIsFavouriteList(!isFavouriteList)}
+          redirectedMap={() => {
+            setIsFavouriteList(false);
+            handleGetFavourites();
+          }}
         />
       </div>
 
